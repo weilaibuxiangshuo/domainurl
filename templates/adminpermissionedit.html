@@ -1,0 +1,61 @@
+{% extends 'base2.html' %}
+{% block main2 %}
+    <body style="background-color: white">
+    <div class="layui-form" lay-filter="" id="adminper-data" style="padding: 20px 30px 0 0;">
+        <div class="layui-form-item" style="">
+            <label class="layui-form-label" style="font-size: 14px;">权限名称：</label>
+            <div class="layui-input-block">
+                <input type="text" name="title1" lay-verify="title1" autocomplete="off"
+                       placeholder="请输入内容" class="layui-input " id="input-name1"
+                       style="height: 38px;width: 95%;">
+            </div>
+        </div>
+        <div class="layui-form-item" style="">
+            <label class="layui-form-label" style="font-size: 14px;">路径地址：</label>
+            <div class="layui-input-block">
+                <input type="text" name="title2" lay-verify="title2" autocomplete="off"
+                       placeholder="请输入内容" class="layui-input " id="input-name2"
+                       style="height: 38px;width: 95%;">
+            </div>
+        </div>
+        <style>
+            i.layui-anim.layui-icon {
+                font-size: 17px;
+            }
+        </style>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="font-size: 14px">请求方式：</label>
+            <div class="layui-input-block">
+                    <input type="radio" name="limits1" value="GET" title="GET">
+                    <input type="radio" name="limits1" value="POST" title="POST">
+                    <input type="radio" name="limits1" value="PUT" title="PUT">
+                    <input type="radio" name="limits1" value="DELETE" title="DELETE">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="font-size: 14px">一级菜单：</label>
+            <div class="layui-input-block">
+                {% for data in menu %}
+                    <input type="radio" name="limits2" value="{{ data.name }}AAA" title="{{ data.name }}">
+                {% endfor %}
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="font-size: 14px">二级菜单：</label>
+            <div class="layui-input-block">
+                {% for subdata in submenu %}
+                <input type="radio" name="limits2" value="{{ subdata.name }}BBB"  title="{{ subdata.name }}">
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    </body>
+    <script>
+        layui.use('form', function () {
+            var form = layui.form;
+            form.render();
+        })
+    </script>
+{% endblock %}

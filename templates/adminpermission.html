@@ -1,0 +1,302 @@
+{% extends 'base2.html' %}
+{% block main2 %}
+    <body>
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card" style="height: 220px;">
+                    <div class="layui-card-body ">
+                        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 10px;">
+                            <legend>表单集合演示</legend>
+                        </fieldset>
+
+                        <form class="layui-form" action="{% url "domain:adminpermissiondata" %}" method="post">
+                            {% csrf_token %}
+                            <div class="layui-form-item" style="width: 46%">
+                                <label class="layui-form-label" style="font-size: 14px;width:85px;">权限：</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="title1" lay-verify="title1" autocomplete="off"
+                                           placeholder="请输入内容" class="layui-input " id="input-name1"
+                                           style="height: 38px;width: 95%;">
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="width: 46%;position: absolute;top: 64px;left: 46%;">
+                                <label class="layui-form-label" style="font-size: 14px;width:85px;">路径：</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="title2" lay-verify="title2" autocomplete="off"
+                                           placeholder="请输入内容" class="layui-input " id="input-name1"
+                                           style="height: 38px;width: 95%;">
+                                </div>
+                            </div>
+                            <style>
+                                input.layui-input.layui-unselect {height: 36px}
+                            </style>
+                            <div class="layui-form-item" style="width: 43%;position: absolute;left: 20px;">
+                                <label class="layui-form-label" style="font-size: 14px">请求方式：</label>
+                                <div class="layui-input-block" style="height: 38px">
+                                    <select name="interest1" lay-filter="methodtext" id="methodtext" lay-verify="methodtext">
+                                        <option value=""></option>
+                                        <option value="GET">GET</option>
+                                        <option value="POST">POST</option>
+                                        <option value="PUT">PUT</option>
+                                        <option value="DELETE">DELETE</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="width: 44.2%;position: absolute;left: 46.5%;;">
+                                <label class="layui-form-label" style="font-size: 14px">父级菜单：</label>
+                                <div class="layui-input-block" style="height: 38px">
+                                    <select name="interest2" lay-filter="menuparent" id="menuparent" lay-verify="menuparent">
+                                        <option value=""></option>
+                                        <optgroup label="一级菜单">
+                                            {% for data in menu %}
+                                            <option value="{{ data.name }}AAA">{{ data.name }}(一级菜单)</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                        <optgroup label="二级菜单">
+                                            {% for subdata in submenu %}
+                                                <option value="{{ subdata.name }}BBB">{{ subdata.name }}(二级菜单)</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="left: 32%;width: 90%;position: absolute;top: 170px;">
+                                <div class="layui-input-block ">
+                                    <button class="layui-btn" lay-submit="" lay-filter="alias-form">立即提交</button>
+                                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md12" id="alias-table">
+                <div class="layui-card" style="padding: 8px">
+                    <table class="layui-hide" id="permissioncode" lay-filter="permissioncode"></table>
+
+                    <style>
+                        .layui-table-tool-temp {
+                            padding-right: 0px
+                        }
+                    </style>
+
+
+                    <script type="text/html" id="toolbarDemo">
+
+                        <div class="layui-btn-container">
+                            <button class="layui-btn layui-btn-sm" lay-event="selectAll">全部选中</button>
+                            <button class="layui-btn layui-btn-sm" lay-event="deleteAll"
+                                    style="background-color: #ff5722">批量删除
+                            </button>
+                        </div>
+                        <div style="">
+                            <input type="text" name="title3" lay-verify="title3" autocomplete="off"
+                                   placeholder="请输入用户名" class="layui-input" id="search-data"
+                                   style="height: 30px;width: 200px;line-height: 30px;position: absolute;top: 10px;left: 170px;">
+                            <button class="layui-btn layui-btn-sm" lay-event="search"
+                                    style="position: absolute;top: 10px;left: 330px;"><i
+                                    class="layui-icon layui-icon-search"></i>
+                            </button>
+                        </div>
+                    </script>
+
+
+                    <script type="text/html" id="barDemo">
+                        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    </script>
+
+                    <script>
+                        layui.use(['table', 'form','layer'], function () {
+                            var form = layui.form;
+                            var table = layui.table;
+                            var layer=layui.layer;
+                            table.render({
+                                elem: '#permissioncode'
+                                , url: '{% url "domain:adminpermissiondata" %}'
+                                , method: 'get'
+                                , toolbar: '#toolbarDemo'
+                                , defaultToolbar: []
+                                , limits: [10, 20, 30, 50]
+                                , title: '用户数据表'
+                                , cols: [[
+                                    {type: 'checkbox', fixed: 'left'}
+                                    , {field: 'id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true}
+                                    , {field: 'name', title: '权限名称'}
+                                    , {field: 'nameurl', title: '路径地址'}
+                                    , {field: 'namemethod', title: '请求方式'}
+                                    , {field: 'relationship', title: '父级菜单'}
+                                    , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150}
+                                ]]
+                                , page: true
+                            });
+
+                            //头工具栏事件
+                            table.on('toolbar(permissioncode)', function (obj) {
+                                var checkStatus = table.checkStatus(obj.config.id);
+                                //console.log(checkStatus);
+                                switch (obj.event) {
+                                    case 'selectAll':
+                                        var html = $('.layui-table-header table i.layui-icon.layui-icon-ok')[1];
+                                        html.click();
+                                        break;
+                                    case 'deleteAll':
+                                        var data = checkStatus.data;
+                                        var token_value = $('[name="csrfmiddlewaretoken"]').val();
+                                        var dataArray = [];
+                                        for (let m = 0; m < data.length; m++) {
+                                            dataArray.push({"id": data[m].id});
+                                        }
+                                        ;
+                                        $.ajax({
+                                            url: "{% url 'domain:adminpermissiondata' %}",
+                                            method: "delete",
+                                            headers: {"X-CSRFToken": token_value},
+                                            cache: false,
+                                            data: {
+                                                "data": JSON.stringify(dataArray)
+                                            },
+                                            success: function (res) {
+                                                //console.log(res);
+                                                table.reload("permissioncode", {url: "{% url 'domain:adminpermissiondata' %}"})
+                                            }
+                                        });
+                                        break;
+                                    case 'search':
+                                        var search_data = $('#search-data').val();
+                                        if (search_data.trim() == "") {
+                                            layer.msg('请输入内容~~', {icon: 6});
+                                            ;
+                                            return false;
+                                        } else {
+                                            //search_data=JSON.stringify(search_data);
+                                            table.reload('permissioncode', {
+                                                url: "{% url 'domain:adminpermissiondata' %}", where: {
+                                                    "search": search_data
+                                                }
+                                            });
+                                        }
+                                        ;
+                                        break;
+                                }
+                                ;
+                            });
+
+                            //监听行工具事件
+                            table.on('tool(permissioncode)', function (obj) {
+                                var data = obj.data;
+                                var token_value = $('[name="csrfmiddlewaretoken"]').val();
+                                if (obj.event === 'del') {
+                                    layer.confirm('真的删除行么', function (index) {
+                                        obj.del();
+                                        //删除除数据
+                                        var dataArray = [];
+                                        dataArray.push({"id": data.id});
+                                        $.ajax({
+                                            url: "{% url 'domain:adminpermissiondata' %}",
+                                            method: "delete",
+                                            headers: {"X-CSRFToken": token_value},
+                                            cache: false,
+                                            data: {
+                                                "data": JSON.stringify(dataArray)
+                                            },
+                                            success: function (res) {
+                                                //console.log(res);
+                                                //table.reload("permissioncode", {url: "{% url 'domain:adminpermissiondata' %}"});
+                                                //form.render();
+                                                location.reload();
+                                            }
+                                        });
+                                        layer.close(index);
+                                    });
+                                } else if (obj.event === 'edit') {
+                                    //$('#input-name1').val(obj.data.name);
+                                    layer.open({
+                                        type:2,
+                                        id:"admin-per-radio",
+                                        area: ['500px', '500px'],
+                                        content:"{% url 'domain:adminpermissionedit' %}",
+                                        btn: ['确定', '取消'],
+                                        success:function(layero, index){
+                                            console.log(obj.data,'kk');
+                                            var body=layer.getChildFrame('body', index);
+                                            var test1="";test2="";test3="";test4="";
+                                            test1=body.find('#input-name1');
+                                            test1.val(obj.data.name);
+                                            test2=body.find('#input-name2');
+                                            test2.val(obj.data.nameurl);
+                                            test3=body.find("input[name='limits1']");
+                                            test4=body.find("input[name='limits2']");
+                                            for (var n = 0; n < test3.length; n++) {
+                                                if (test3[n].title === obj.data.namemethod) {
+                                                    $(test3[n]).attr('checked', 'checked');
+                                                    //test3_data.eq(n).next('div').children('i.layui-anim.layui-icon').click();
+                                                }
+                                            }
+                                            for(var h=0;h<test4.length;h++){
+                                                var text_1=obj.data.relationship.slice(0,-4);
+                                                if (text_1===test4[h].title){
+                                                    $(test4[h]).attr("checked","checked");
+                                                }
+                                            }
+                                            var iframeWin = layero.find('iframe')[0].contentWindow;
+                                            //console.log(iframeWin);
+                                            iframeWin.layui.form.render('radio');
+                                        },
+                                        yes:function (index,layero) {
+                                            console.log('ok');
+                                            var body=layer.getChildFrame('body', index);
+                                            var _data1=body.find('#input-name1').val();
+                                            var _data2=body.find('#input-name2').val();
+                                            var _data3=body.find('input[name="limits1"]:checked').val();
+                                            var _data4=body.find('input[name="limits2"]:checked').val();
+                                            console.log(_data4,'_data1');
+                                            //console.log(body.html(),'data1');
+                                            $.ajax({
+                                                url:"{% url 'domain:adminpermissiondata' %}",
+                                                method:'put',
+                                                headers: {"X-CSRFToken": token_value},
+                                                cache:false,
+                                                data:{data:JSON.stringify({
+                                                    id:obj.data.id,
+                                                    name:_data1,
+                                                    nameurl:_data2,
+                                                    method:_data3,
+                                                    relation:_data4})
+                                                },
+                                                success:function () {
+                                                    window.location.reload();
+                                                    //table.reload("permissioncode", {url: "{% url 'domain:adminpermissiondata' %}"});
+                                                }
+                                            });
+                                            layer.close(index);
+                                        },
+                                        cancel:function () {
+                                            console.log('no');
+                                        },
+
+                                    });
+                                }
+                            });
+
+                            //验证
+                            form.verify({
+                                title1: [/^[\S]/, '内容不能为空'],
+                                title2: [/^[\S]/, '内容不能为空'],
+                                menuparent: [/^[\S]/, '内容不能为空'],
+                                methodtext: [/^[\S]/, '内容不能为空'],
+                            });
+                            //checkbox验证
+
+                        });
+
+                    </script>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    </body>
+{% endblock %}

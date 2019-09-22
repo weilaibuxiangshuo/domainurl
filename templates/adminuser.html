@@ -1,0 +1,214 @@
+{% extends 'base2.html' %}
+{% block main2 %}
+    <body>
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-body ">
+                        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 10px;">
+                            <legend>表单集合演示</legend>
+                        </fieldset>
+
+                        <form class="layui-form" action="{% url "domain:adminuserdata" %}" method="post">
+                            {% csrf_token %}
+                            <div class="layui-form-item" style="width: 46%">
+                                <label class="layui-form-label" style="font-size: 14px;width:85px;">用户名：</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="title1" lay-verify="title1" autocomplete="off"
+                                           placeholder="请输入内容" class="layui-input " id="user-name1"
+                                           style="height: 38px;width: 95%;">
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="width: 46%;position: absolute;top: 64px;left: 46%;">
+                                <label class="layui-form-label" style="font-size: 14px;width:85px;">密码：</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="title2" lay-verify="title2" autocomplete="off"
+                                           placeholder="请输入密码" class="layui-input " id="user-name2"
+                                           style="height: 38px;width: 95%;">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <style>
+                                    input.layui-input.layui-unselect {height: 38px;}
+                                </style>
+                                <label class="layui-form-label" style="font-size: 14px;width:85px;">角色选择：</label>
+                                <div class="layui-input-block"  style="position: absolute;left: 21px;width: 78.5%;">
+                                <select name="rolename" lay-filter="rolename" lay-verify="title3" id="user-name3">
+                                 <option value=""></option>
+                                    {% for temp in data %}
+                                     <option value="{{ temp.id }}">{{ temp.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="text-align: center;width: 90%">
+                                <div class="layui-input-block ">
+                                    <button class="layui-btn" id="layui-btn-click" lay-submit="" lay-filter="alias-form">立即提交</button>
+                                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md12" id="alias-table">
+                <div class="layui-card" style="padding: 8px">
+                    <table class="layui-hide" id="usercode" lay-filter="usercode"></table>
+
+                    <style>
+                        .layui-table-tool-temp {
+                            padding-right: 0px
+                        }
+                    </style>
+
+
+                    <script type="text/html" id="toolbarDemo">
+
+                        <div class="layui-btn-container">
+                            <button class="layui-btn layui-btn-sm" lay-event="selectAll">全部选中</button>
+                            <button class="layui-btn layui-btn-sm" lay-event="deleteAll"
+                                    style="background-color: #ff5722">批量删除
+                            </button>
+                        </div>
+                        <div style="">
+                            <input type="text" name="title3" lay-verify="title3" autocomplete="off"
+                                   placeholder="请输入用户名" class="layui-input" id="search-data"
+                                   style="height: 30px;width: 200px;line-height: 30px;position: absolute;top: 10px;left: 170px;">
+                            <button class="layui-btn layui-btn-sm" lay-event="search"
+                                    style="position: absolute;top: 10px;left: 330px;"><i
+                                    class="layui-icon layui-icon-search"></i>
+                            </button>
+                        </div>
+                    </script>
+
+
+                    <script type="text/html" id="barDemo">
+                        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    </script>
+
+                    <script>
+                        layui.use(['table', 'form'], function () {
+                            var form = layui.form;
+                            var table = layui.table;
+                            form.render();
+                            table.render({
+                                elem: '#usercode'
+                                , url: '{% url "domain:adminuserdata" %}'
+                                , method: 'get'
+                                , toolbar: '#toolbarDemo'
+                                , defaultToolbar: []
+                                , limits: [10, 20, 30, 50]
+                                , title: '用户数据表'
+                                , cols: [[
+                                    {type: 'checkbox', fixed: 'left'}
+                                    , {field: 'id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true}
+                                    , {field: 'username', title: '用户名'}
+                                    , {field: 'rolename', title: '所属角色'}
+                                    , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150}
+                                ]]
+                                , page: true
+                            });
+
+
+
+                            //头工具栏事件
+                            table.on('toolbar(usercode)', function (obj) {
+                                var checkStatus = table.checkStatus(obj.config.id);
+                                //console.log(checkStatus);
+                                switch (obj.event) {
+                                    case 'selectAll':
+                                        var html = $('.layui-table-header table i.layui-icon.layui-icon-ok')[1];
+                                        html.click();
+                                        break;
+                                    case 'deleteAll':
+                                        var data = checkStatus.data;
+                                        var token_value = $('[name="csrfmiddlewaretoken"]').val();
+                                        var dataArray = [];
+                                        for (let m = 0; m < data.length; m++) {
+                                            dataArray.push({"id": data[m].id});
+                                        }
+                                        ;
+                                        $.ajax({
+                                            url: "{% url 'domain:adminuserdata' %}",
+                                            method: "delete",
+                                            headers: {"X-CSRFToken": token_value},
+                                            cache: false,
+                                            data: {
+                                                "data": JSON.stringify(dataArray)
+                                            },
+                                            success: function (res) {
+                                                //console.log(res);
+                                                table.reload("usercode", {url: "{% url 'domain:adminuserdata' %}"})
+                                            }
+                                        });
+                                        break;
+                                    case 'search':
+                                        var search_data = $('#search-data').val();
+                                        if (search_data.trim() == "") {
+                                            layer.msg('请输入内容~~', {icon: 6});
+                                            ;
+                                            return false;
+                                        } else {
+                                            //search_data=JSON.stringify(search_data);
+                                            table.reload('usercode', {
+                                                url: "{% url 'domain:adminuserdata' %}", where: {
+                                                    "search": search_data
+                                                }
+                                            });
+                                        }
+                                        ;
+                                        break;
+                                }
+                                ;
+                            });
+
+                            //监听行工具事件
+                            table.on('tool(usercode)', function (obj) {
+                                var data = obj.data;
+                                if (obj.event === 'del') {
+                                    layer.confirm('真的删除行么', function (index) {
+                                        obj.del();
+                                        //删除除数据
+                                        var token_value = $('[name="csrfmiddlewaretoken"]').val();
+                                        var dataArray = [];
+                                        dataArray.push({"id": data.id});
+                                        $.ajax({
+                                            url: "{% url 'domain:adminuserdata' %}",
+                                            method: "delete",
+                                            headers: {"X-CSRFToken": token_value},
+                                            cache: false,
+                                            data: {
+                                                "data": JSON.stringify(dataArray)
+                                            },
+                                            success: function (res) {
+                                                //console.log(res);
+                                                table.reload("usercode", {url: "{% url 'domain:adminuserdata' %}"})
+                                            }
+                                        });
+                                        layer.close(index);
+                                    });
+                                } else if (obj.event === 'edit') {
+                                    $('#user-name1').val(obj.data.username);
+                                    $('select[name="rolename"]').val(obj.data.roleid);
+                                    form.render();
+                                }
+                            });
+
+                            //验证
+                            form.verify({
+                                title1: [/^[\S]/, '用户名不能为空'],
+                                title2: [/^[\S]/, '密码不能为空'],
+                                title3: [/^[\S]/, '角色不能为空'],
+                            });
+                        });
+
+                    </script>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </body>
+{% endblock %}

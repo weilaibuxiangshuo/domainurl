@@ -1,0 +1,243 @@
+{% extends 'base2.html' %}
+{% block main2 %}
+    <body>
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-body ">
+                        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 10px;">
+                            <legend>表单集合演示</legend>
+                        </fieldset>
+
+                        <form class="layui-form" action="{% url "domain:adminroledata" %}" method="post">
+                            {% csrf_token %}
+                            <div class="layui-form-item">
+                                <label class="layui-form-label" style="font-size: 14px;width:85px;">角色名称：</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="title1" lay-verify="title1" autocomplete="off"
+                                           placeholder="请输入内容" class="layui-input " id="input-name1"
+                                           style="height: 38px;width: 95%;">
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="text-align: center;width: 90%">
+                                <div class="layui-input-block ">
+                                    <button class="layui-btn" lay-submit="" lay-filter="alias-form">立即提交</button>
+                                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md12" id="alias-table">
+                <div class="layui-card" style="padding: 8px">
+                    <table class="layui-hide" id="rolecode" lay-filter="rolecode"></table>
+
+                    <style>
+                        .layui-table-tool-temp {
+                            padding-right: 0px
+                        }
+                    </style>
+
+
+                    <script type="text/html" id="toolbarDemo">
+
+                        <div class="layui-btn-container">
+                            <button class="layui-btn layui-btn-sm" lay-event="selectAll">全部选中</button>
+                            <button class="layui-btn layui-btn-sm" lay-event="deleteAll"
+                                    style="background-color: #ff5722">批量删除
+                            </button>
+                        </div>
+                        <div style="">
+                            <input type="text" name="title3" lay-verify="title3" autocomplete="off"
+                                   placeholder="请输入用户名" class="layui-input" id="search-data"
+                                   style="height: 30px;width: 200px;line-height: 30px;position: absolute;top: 10px;left: 170px;">
+                            <button class="layui-btn layui-btn-sm" lay-event="search"
+                                    style="position: absolute;top: 10px;left: 330px;"><i
+                                    class="layui-icon layui-icon-search"></i>
+                            </button>
+                        </div>
+                    </script>
+
+
+                    <script type="text/html" id="barDemo">
+                        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    </script>
+
+                    <script>
+                        layui.use(['table', 'form','layer'], function () {
+                            var form = layui.form;
+                            var table = layui.table;
+                            var layer=layui.layer;
+                            table.render({
+                                elem: '#rolecode'
+                                , url: '{% url "domain:adminroledata" %}'
+                                , method: 'get'
+                                , toolbar: '#toolbarDemo'
+                                , defaultToolbar: []
+                                , limits: [10, 20, 30, 50]
+                                , title: '用户数据表'
+                                , cols: [[
+                                    {type: 'checkbox', fixed: 'left'}
+                                    , {field: 'id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true}
+                                    , {field: 'name', title: '角色名称'}
+                                    , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150}
+                                ]]
+                                , page: true
+                            });
+
+                            //头工具栏事件
+                            table.on('toolbar(rolecode)', function (obj) {
+                                var checkStatus = table.checkStatus(obj.config.id);
+                                //console.log(checkStatus);
+                                switch (obj.event) {
+                                    case 'selectAll':
+                                        var html = $('.layui-table-header table i.layui-icon.layui-icon-ok')[1];
+                                        html.click();
+                                        break;
+                                    case 'deleteAll':
+                                        var data = checkStatus.data;
+                                        var token_value = $('[name="csrfmiddlewaretoken"]').val();
+                                        var dataArray = [];
+                                        for (let m = 0; m < data.length; m++) {
+                                            dataArray.push({"id": data[m].id});
+                                        }
+                                        ;
+                                        $.ajax({
+                                            url: "{% url 'domain:adminroledata' %}",
+                                            method: "delete",
+                                            headers: {"X-CSRFToken": token_value},
+                                            cache: false,
+                                            data: {
+                                                "data": JSON.stringify(dataArray)
+                                            },
+                                            success: function (res) {
+                                                //console.log(res);
+                                                table.reload("rolecode", {url: "{% url 'domain:adminroledata' %}"})
+                                            }
+                                        });
+                                        break;
+                                    case 'search':
+                                        var search_data = $('#search-data').val();
+                                        if (search_data.trim() == "") {
+                                            layer.msg('请输入内容~~', {icon: 6});
+                                            ;
+                                            return false;
+                                        } else {
+                                            //search_data=JSON.stringify(search_data);
+                                            table.reload('rolecode', {
+                                                url: "{% url 'domain:adminroledata' %}", where: {
+                                                    "search": search_data
+                                                }
+                                            });
+                                        }
+                                        ;
+                                        break;
+                                }
+                                ;
+                            });
+
+                            //监听行工具事件
+                            table.on('tool(rolecode)', function (obj) {
+                                var data = obj.data;
+                                var token_value = $('[name="csrfmiddlewaretoken"]').val();
+                                if (obj.event === 'del') {
+                                    layer.confirm('真的删除行么', function (index) {
+                                        //obj.del();
+                                        //删除除数据
+                                        var dataArray = [];
+                                        dataArray.push({"id": data.id});
+                                        $.ajax({
+                                            url: "{% url 'domain:adminroledata' %}",
+                                            method: "delete",
+                                            headers: {"X-CSRFToken": token_value},
+                                            cache: false,
+                                            data: {
+                                                "data": JSON.stringify(dataArray)
+                                            },
+                                            success: function (res) {
+                                                //console.log(res);
+                                                table.reload("rolecode", {url: "{% url 'domain:adminroledata' %}"})
+                                            }
+                                        });
+                                        layer.close(index);
+                                    });
+                                } else if (obj.event === 'edit') {
+                                    //console.log(obj.data);
+                                    layer.open({
+                                        type:2,
+                                        content:"{% url 'domain:adminroleiframe' %}",
+                                        area: ['600px', '500px'],
+                                        btn: ['确定', '取消'],
+                                        success:function(layero, index){
+                                            var body = layer.getChildFrame("body",index);
+                                            var temp1=body.find('#input-name1');
+                                            temp1.val(obj.data.name);
+                                            //console.log(body.html());
+                                            $.ajax({
+                                                url:'{% url "domain:adminroleset" %}',
+                                                cache:false,
+                                                data:{"roleid":data.id},
+                                                success:function (obj) {
+                                                    //console.log(obj.code);
+                                                    var body = layer.getChildFrame("body",index);
+                                                    var kk=body.find('input[type="checkbox"]');
+                                                    for (var s=0;s<kk.length;s++){
+                                                        //console.log($(kk[s]).val());
+                                                        var cc=$(kk[s]).val();
+                                                        var t1=$.inArray(parseInt(cc),obj.code);
+                                                        if(t1 !== -1){$(kk[s]).attr('checked',true)}
+                                                        var iframeWin = layero.find('iframe')[0].contentWindow;
+                                                        iframeWin.layui.form.render('checkbox');
+                                                    }
+                                                }
+                                            })
+                                        },
+                                        yes:function (index, layero) {
+                                            var body = layer.getChildFrame("body",index);
+                                            var test1=body.find('#input-name1');
+                                            //console.log(test1.val());
+                                            var test2=body.find('input[type="checkbox"]');
+                                            var templist=[];
+                                            for (var k=0;k<test2.length;k++){
+                                                //console.log(test2[k]);
+                                                //console.log($(test2[k]).prop('checked'));
+                                                if ($(test2[k]).prop('checked')){
+                                                    console.log(test2[k]);
+                                                    console.log($(test2[k]).val());
+                                                    templist.push($(test2[k]).val());
+                                                }
+
+                                            };
+                                            $.ajax({
+                                                    url:'{% url "domain:adminroleedit" %}',
+                                                    cache:false,
+                                                    method:'post',
+                                                    headers: {"X-CSRFToken": token_value},
+                                                    data:{
+                                                        data:JSON.stringify({data:templist,id:obj.data.id})
+                                                    },
+                                                });
+                                            layer.close(index);
+                                        },
+                                    });
+                                    //$('#input-name1').val(obj.data.name);
+                                }
+                            });
+
+                            //验证
+                            form.verify({
+                                title1: [/^[\S]/, '内容不能为空'],
+                            });
+                        });
+
+                    </script>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </body>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base2.html' %}
+{% block main2 %}
+    <body style="background-color: white">
+    <div class="layui-form" lay-filter="" id="adminper-data" style="padding: 20px 30px 0 0;">
+        <div class="layui-form-item" style="">
+            <label class="layui-form-label" style="font-size: 14px;">角色名称：</label>
+            <div class="layui-input-block">
+                <input type="text" name="title1" lay-verify="title1" autocomplete="off"
+                       placeholder="请输入内容" class="layui-input " id="input-name1"
+                       style="height: 38px;width:100%;">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="font-size: 14px;">权限选择：</label>
+            <div class="layui-input-block">
+            <div class="layui-collapse"  lay-accordion="" style="width: 100%;">
+                <div class="layui-colla-item">
+                    {% for temp_m in data %}
+                    <h2 class="layui-colla-title">{{ temp_m.menu.name }}</h2>
+
+                            <div class="layui-colla-content layui-show" >
+                            {% for temp_n in temp_m.submenu %}
+                                <input type="checkbox" value="{{ temp_n.id }}" name="{{ temp_n.name}}" lay-skin="primary" title="{{ temp_n.name }}">
+                            {% endfor %}
+                            </div>
+
+                    {% endfor %}
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+        <script>
+            layui.use(['element','form'], function () {
+                var form = layui.form;
+                var element=layui.element;
+
+                //监听折叠
+                element.on('collapse(test)', function (data) {
+                    layer.msg('展开状态：' + data.show);
+                });
+                form.render();
+            })
+
+
+
+
+        /*
+            <div class="layui-input-block">
+            <div class="layui-collapse"  lay-accordion="" style="width: 95%;">
+                <div class="layui-colla-item">
+                    <h2 class="layui-colla-title">layui 更适合哪些开发者？</h2>
+                    <div class="layui-colla-content">
+                        <input type="checkbox" name="like1[write]" lay-skin="primary" title="写作" checked="">
+                        <input type="checkbox" name="like1[read]" lay-skin="primary" title="阅读">
+                        <input type="checkbox" name="like1[game]" lay-skin="primary" title="游戏" >
+                    </div>
+                </div>
+            </div>
+            </div>
+        * */
+
+
+
+
+
+
+    </script>
+{% endblock %}
